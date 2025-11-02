@@ -77,4 +77,3 @@ func Parse(payload string, strict, subTags bool) (*EMVCoQR, error) {
 func ParseBarcode(payload string) (*BOTBarcode, error) {
 	return BOTBarcodeFromString(payload)
 }
-

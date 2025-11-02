@@ -33,10 +33,8 @@ func TestCRC16XMODEM(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := CRC16XMODEM(tt.data, tt.crc)
-			// Just verify it returns a valid uint16
-			if got > 0xffff {
-				t.Errorf("CRC16XMODEM(%q, 0x%04x) = 0x%04x, should be <= 0xffff", tt.data, tt.crc, got)
-			}
+			// Verify it returns a valid uint16 (always true, but kept for documentation)
+			_ = got // got is always <= 0xffff as it's uint16
 			// Verify it's not zero for non-empty input (unless specific case)
 			if tt.data != "" && got == 0 && tt.crc == 0xffff {
 				t.Logf("CRC16XMODEM(%q, 0x%04x) = 0x%04x (unexpected zero for non-empty input)", tt.data, tt.crc, got)
@@ -52,4 +50,3 @@ func TestCRC16XMODEM(t *testing.T) {
 		t.Errorf("CRC16XMODEM() not consistent: got 0x%04x and 0x%04x for same input", crc1, crc2)
 	}
 }
-

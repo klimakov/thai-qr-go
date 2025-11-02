@@ -68,7 +68,8 @@ func TestParse_PromptPayQR_PhoneNumber(t *testing.T) {
 	// Check Tag 29.01 (phone number)
 	phoneTag := qr.GetTag("29", "01")
 	if phoneTag == nil {
-		t.Error("Parse() should have Tag 29.01")
+		t.Fatal("Parse() should have Tag 29.01")
+		return
 	}
 	if phoneTag.Value != "0066801234567" {
 		t.Errorf("Parse() Tag 29.01 = %v, want 0066801234567", phoneTag.Value)
@@ -101,7 +102,8 @@ func TestParse_PromptPayQR_NationalID(t *testing.T) {
 	// Check Tag 29.02 (National ID)
 	nidTag := qr.GetTag("29", "02")
 	if nidTag == nil {
-		t.Error("Parse() should have Tag 29.02")
+		t.Fatal("Parse() should have Tag 29.02")
+		return
 	}
 	if nidTag.Value != "1111111111111" {
 		t.Errorf("Parse() Tag 29.02 = %v, want 1111111111111", nidTag.Value)
@@ -119,7 +121,8 @@ func TestParse_PromptPayQR_TaxID(t *testing.T) {
 	// Check Tag 29.02 (Tax ID)
 	taxTag := qr.GetTag("29", "02")
 	if taxTag == nil {
-		t.Error("Parse() should have Tag 29.02")
+		t.Fatal("Parse() should have Tag 29.02")
+		return
 	}
 	if taxTag.Value != "0123456789012" {
 		t.Errorf("Parse() Tag 29.02 = %v, want 0123456789012", taxTag.Value)
@@ -137,7 +140,8 @@ func TestParse_PromptPayQR_EWalletID(t *testing.T) {
 	// Check Tag 29.03 (E-Wallet ID)
 	ewalletTag := qr.GetTag("29", "03")
 	if ewalletTag == nil {
-		t.Error("Parse() should have Tag 29.03")
+		t.Fatal("Parse() should have Tag 29.03")
+		return
 	}
 	if ewalletTag.Value != "012345678901234" {
 		t.Errorf("Parse() Tag 29.03 = %v, want 012345678901234", ewalletTag.Value)
@@ -201,6 +205,7 @@ func TestParse_SubTags(t *testing.T) {
 	tag29 := qr.GetTag("29", "")
 	if tag29 == nil {
 		t.Fatal("Parse() Tag 29 should exist")
+		return
 	}
 	if len(tag29.SubTags) == 0 {
 		t.Error("Parse() Tag 29 should have subTags")

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"thai-qr-go"
+	thaiqrgo "thai-qr-go"
 	"thai-qr-go/validate"
 )
 
@@ -128,24 +128,24 @@ func parseBarcode(payload, format string) error {
 
 // QRCodeInfo contains extracted information from QR code
 type QRCodeInfo struct {
-	Type         string                 `json:"type,omitempty"`
-	PhoneNumber  string                 `json:"phone_number,omitempty"`
-	NationalID   string                 `json:"national_id,omitempty"`
-	TaxID        string                 `json:"tax_id,omitempty"`
-	EWalletID   string                 `json:"ewallet_id,omitempty"`
-	Amount       *float64               `json:"amount,omitempty"`
-	Currency     string                 `json:"currency,omitempty"`
-	Country      string                 `json:"country,omitempty"`
-	BillerID     string                 `json:"biller_id,omitempty"`
-	Ref1         string                 `json:"ref1,omitempty"`
-	Ref2         string                 `json:"ref2,omitempty"`
-	Ref3         string                 `json:"ref3,omitempty"`
-	Message      string                 `json:"message,omitempty"`
-	SlipVerify   *validate.SlipVerifyData        `json:"slip_verify,omitempty"`
-	TrueMoney    *validate.TrueMoneySlipVerifyData `json:"truemoney_slip_verify,omitempty"`
-	Tags         []thaiqrgo.TLVTag      `json:"tags,omitempty"`
-	Valid        *bool                  `json:"valid,omitempty"`
-	CRCValid     bool                   `json:"crc_valid"`
+	Type        string                            `json:"type,omitempty"`
+	PhoneNumber string                            `json:"phone_number,omitempty"`
+	NationalID  string                            `json:"national_id,omitempty"`
+	TaxID       string                            `json:"tax_id,omitempty"`
+	EWalletID   string                            `json:"ewallet_id,omitempty"`
+	Amount      *float64                          `json:"amount,omitempty"`
+	Currency    string                            `json:"currency,omitempty"`
+	Country     string                            `json:"country,omitempty"`
+	BillerID    string                            `json:"biller_id,omitempty"`
+	Ref1        string                            `json:"ref1,omitempty"`
+	Ref2        string                            `json:"ref2,omitempty"`
+	Ref3        string                            `json:"ref3,omitempty"`
+	Message     string                            `json:"message,omitempty"`
+	SlipVerify  *validate.SlipVerifyData          `json:"slip_verify,omitempty"`
+	TrueMoney   *validate.TrueMoneySlipVerifyData `json:"truemoney_slip_verify,omitempty"`
+	Tags        []thaiqrgo.TLVTag                 `json:"tags,omitempty"`
+	Valid       *bool                             `json:"valid,omitempty"`
+	CRCValid    bool                              `json:"crc_valid"`
 }
 
 func parseQRStructured(qr *thaiqrgo.EMVCoQR) QRCodeInfo {
@@ -198,7 +198,7 @@ func parseQRStructured(qr *thaiqrgo.EMVCoQR) QRCodeInfo {
 	// PromptPay AnyID (Tag 29)
 	if tag29 != nil {
 		info.Type = "PromptPayAnyID"
-		
+
 		// Check sub-tags
 		phoneTag := qr.GetTag("29", "01")
 		if phoneTag != nil {
@@ -284,7 +284,10 @@ func decodeTag81(hexStr string) string {
 			break
 		}
 		var codePoint int
-		fmt.Sscanf(hexStr[i:i+4], "%x", &codePoint)
+		if _, err := fmt.Sscanf(hexStr[i:i+4], "%x", &codePoint); err != nil {
+			// If parsing fails, skip this character
+			continue
+		}
 		result.WriteRune(rune(codePoint))
 	}
 	return result.String()
@@ -416,4 +419,3 @@ func printBarcodeText(barcode *thaiqrgo.BOTBarcode) {
 		fmt.Printf("Amount: %.2f\n", *barcode.Amount)
 	}
 }
-

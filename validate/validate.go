@@ -79,4 +79,3 @@ func TrueMoneySlipVerify(payload string) (*TrueMoneySlipVerifyData, error) {
 		Date:          date,
 	}, nil
 }
-

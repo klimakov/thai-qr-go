@@ -99,4 +99,3 @@ func (b *BOTBarcode) ToQRTag30() (string, error) {
 	// For compatibility, we provide a stub that returns an error with guidance.
 	return "", fmt.Errorf("ToQRTag30 cannot be called directly due to package structure - use generate.BOTBarcodeToQR(b.BillerID, b.Ref1, b.Ref2, b.Amount) instead")
 }
-

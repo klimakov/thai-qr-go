@@ -242,4 +242,3 @@ func TestBOTBarcodeToQR(t *testing.T) {
 		t.Errorf("BOTBarcodeToQR() without ref2/amount = %v, want %v", got, want)
 	}
 }
-

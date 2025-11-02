@@ -8,4 +8,3 @@
 //   - TrueMoney Slip Verify QR codes
 //   - BOT Barcode strings
 package generate
-

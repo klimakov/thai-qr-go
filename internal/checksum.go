@@ -44,4 +44,3 @@ func CRC16XMODEM(data string, crc uint16) uint16 {
 	}
 	return crc & 0xffff
 }
-

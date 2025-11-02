@@ -143,4 +143,3 @@ func Tag(tagID, value string) TLVTag {
 		Length: len(value),
 	}
 }
-

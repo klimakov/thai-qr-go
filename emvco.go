@@ -50,4 +50,3 @@ func (q *EMVCoQR) Validate(crcTagID string) bool {
 	expected := WithCRCTag(Encode(tagsWithoutCRC), crcTagID, true)
 	return q.payload == expected
 }
-

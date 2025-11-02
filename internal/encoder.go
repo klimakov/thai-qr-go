@@ -18,4 +18,3 @@ func EncodeTag81(message string) string {
 	}
 	return result
 }
-

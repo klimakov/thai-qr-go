@@ -10,10 +10,10 @@ import (
 
 // ProxyType constants for PromptPay AnyID.
 const (
-	ProxyTypeMSISDN   = "01" // Mobile number
-	ProxyTypeNATID    = "02" // National ID or Tax ID
+	ProxyTypeMSISDN    = "01" // Mobile number
+	ProxyTypeNATID     = "02" // National ID or Tax ID
 	ProxyTypeEWALLETID = "03" // E-Wallet ID
-	ProxyTypeBANKACC  = "04" // Bank Account (Reserved)
+	ProxyTypeBANKACC   = "04" // Bank Account (Reserved)
 )
 
 // AnyIDConfig configures a PromptPay AnyID QR code.
@@ -45,7 +45,7 @@ func AnyID(config AnyIDConfig) (string, error) {
 		}
 	}
 
-	proxyTypeValue := config.Type
+	var proxyTypeValue string
 	switch config.Type {
 	case "MSISDN":
 		proxyTypeValue = ProxyTypeMSISDN
@@ -296,5 +296,3 @@ type InvalidConfigError struct {
 func (e *InvalidConfigError) Error() string {
 	return "invalid config: " + e.Field + " = " + e.Value
 }
-
-
