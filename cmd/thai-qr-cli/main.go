@@ -126,6 +126,15 @@ func parseBarcode(payload, format string) error {
 	return nil
 }
 
+// TagInfo represents a tag with a human-readable name for JSON output
+type TagInfo struct {
+	ID      string    `json:"id"`
+	Name    string    `json:"name"`
+	Value   string    `json:"value"`
+	Length  int       `json:"length"`
+	SubTags []TagInfo `json:"sub_tags,omitempty"`
+}
+
 // QRCodeInfo contains extracted information from QR code
 type QRCodeInfo struct {
 	Type        string                            `json:"type,omitempty"`
@@ -143,9 +152,122 @@ type QRCodeInfo struct {
 	Message     string                            `json:"message,omitempty"`
 	SlipVerify  *validate.SlipVerifyData          `json:"slip_verify,omitempty"`
 	TrueMoney   *validate.TrueMoneySlipVerifyData `json:"truemoney_slip_verify,omitempty"`
-	Tags        []thaiqrgo.TLVTag                 `json:"tags,omitempty"`
+	Tags        []TagInfo                         `json:"tags,omitempty"`
 	Valid       *bool                             `json:"valid,omitempty"`
 	CRCValid    bool                              `json:"crc_valid"`
+}
+
+// getTagName returns a human-readable name for a tag or sub-tag
+func getTagName(tagID, subTagID, parentTagID string) string {
+	// Main tags
+	tagNames := map[string]string{
+		"00": "Payload Format Indicator",
+		"01": "Point of Initiation",
+		"29": "Merchant Information",
+		"30": "Additional Data (Bill Payment)",
+		"51": "Country Code (Slip Verify)",
+		"52": "Merchant Category Code",
+		"53": "Transaction Currency",
+		"54": "Transaction Amount",
+		"58": "Country Code",
+		"59": "Merchant Name",
+		"60": "Merchant City",
+		"61": "Postal Code",
+		"62": "Additional Data Field Template",
+		"63": "CRC",
+		"81": "Personal Message",
+		"91": "CRC (Slip Verify)",
+	}
+
+	// Sub-tags of Tag 29 (PromptPay AnyID)
+	tag29SubNames := map[string]string{
+		"00": "GUID (A000000677010111)",
+		"01": "MSISDN (Mobile Number)",
+		"02": "NATID (National/Tax ID)",
+		"03": "EWALLETID (E-Wallet ID)",
+		"04": "BANKACC (Bank Account - Reserved)",
+	}
+
+	// Sub-tags of Tag 30 (Bill Payment)
+	tag30SubNames := map[string]string{
+		"00": "GUID (A000000677010112)",
+		"01": "Biller ID",
+		"02": "Reference 1",
+		"03": "Reference 2",
+	}
+
+	// Sub-tags of Tag 00 (Slip Verify / TrueMoney Slip Verify)
+	tag00SubNames := map[string]string{
+		"00": "API Type",
+		"01": "Sending Bank / API Type 01",
+		"02": "Transaction Reference / Event Type",
+		"03": "Transaction ID",
+		"04": "Date (DDMMYYYY)",
+	}
+
+	// Sub-tags of Tag 62 (Additional Data)
+	tag62SubNames := map[string]string{
+		"07": "Reference 3",
+	}
+
+	// If this is a sub-tag, check parent tag context
+	if subTagID != "" && parentTagID != "" {
+		switch parentTagID {
+		case "29":
+			if name, ok := tag29SubNames[subTagID]; ok {
+				return name
+			}
+		case "30":
+			if name, ok := tag30SubNames[subTagID]; ok {
+				return name
+			}
+		case "00":
+			if name, ok := tag00SubNames[subTagID]; ok {
+				return name
+			}
+		case "62":
+			if name, ok := tag62SubNames[subTagID]; ok {
+				return name
+			}
+		}
+		return fmt.Sprintf("Sub Tag %s", subTagID)
+	}
+
+	// Main tag
+	if name, ok := tagNames[tagID]; ok {
+		return name
+	}
+	return fmt.Sprintf("Tag %s", tagID)
+}
+
+// convertTagsToInfo converts []TLVTag to []TagInfo with names
+func convertTagsToInfo(tags []thaiqrgo.TLVTag, parentTagID string) []TagInfo {
+	result := make([]TagInfo, 0, len(tags))
+	for _, tag := range tags {
+		// Determine if this is a sub-tag
+		isSubTag := parentTagID != ""
+		var tagName string
+		if isSubTag {
+			tagName = getTagName(parentTagID, tag.ID, parentTagID)
+		} else {
+			tagName = getTagName(tag.ID, "", "")
+		}
+
+		tagInfo := TagInfo{
+			ID:     tag.ID,
+			Name:   tagName,
+			Value:  tag.Value,
+			Length: tag.Length,
+		}
+
+		// Recursively process sub-tags
+		if len(tag.SubTags) > 0 {
+			tagInfo.SubTags = convertTagsToInfo(tag.SubTags, tag.ID)
+		}
+
+		result = append(result, tagInfo)
+	}
+	return result
 }
 
 func parseQRStructured(qr *thaiqrgo.EMVCoQR) QRCodeInfo {
@@ -271,8 +393,8 @@ func parseQRStructured(qr *thaiqrgo.EMVCoQR) QRCodeInfo {
 		info.CRCValid = valid
 	}
 
-	// Include all tags if format is json
-	info.Tags = qr.GetTags()
+	// Convert tags with names for JSON output
+	info.Tags = convertTagsToInfo(qr.GetTags(), "")
 
 	return info
 }
@@ -369,15 +491,15 @@ func printQRText(qr *thaiqrgo.EMVCoQR, info QRCodeInfo) {
 	fmt.Printf("\nCRC Valid: %v\n", info.CRCValid)
 
 	fmt.Println("\nTLV Tags:")
-	printTagsTree(qr.GetTags(), 0)
+	printTagsTreeFromInfo(info.Tags, 0)
 }
 
-func printTagsTree(tags []thaiqrgo.TLVTag, indent int) {
+func printTagsTreeFromInfo(tags []TagInfo, indent int) {
 	prefix := strings.Repeat("  ", indent)
 	for _, tag := range tags {
-		fmt.Printf("%sTag %s (length: %d): %s\n", prefix, tag.ID, tag.Length, tag.Value)
+		fmt.Printf("%sTag %s - %s (length: %d): %s\n", prefix, tag.ID, tag.Name, tag.Length, tag.Value)
 		if len(tag.SubTags) > 0 {
-			printTagsTree(tag.SubTags, indent+1)
+			printTagsTreeFromInfo(tag.SubTags, indent+1)
 		}
 	}
 }
