@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	thaiqrgo "thai-qr-go"
-	"thai-qr-go/validate"
+	thaiqrgo "github.com/klimakov/thai-qr-go"
+	"github.com/klimakov/thai-qr-go/validate"
 )
 
 const version = "1.0.0"

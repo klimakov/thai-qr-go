@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"thai-qr-go/internal"
+	"github.com/klimakov/thai-qr-go/internal"
 )
 
 // TLVTag represents a Tag-Length-Value structure.

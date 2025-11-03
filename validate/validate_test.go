@@ -3,7 +3,7 @@ package validate
 import (
 	"testing"
 
-	"thai-qr-go/generate"
+	"github.com/klimakov/thai-qr-go/generate"
 )
 
 func TestSlipVerify_Valid(t *testing.T) {

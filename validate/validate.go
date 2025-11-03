@@ -2,7 +2,7 @@ package validate
 
 import (
 	"errors"
-	"thai-qr-go"
+	"github.com/klimakov/thai-qr-go"
 )
 
 // SlipVerifyData contains extracted data from a Slip Verify QR code.

@@ -4,8 +4,8 @@ import (
 	"strconv"
 	"strings"
 
-	"thai-qr-go"
-	"thai-qr-go/internal"
+	"github.com/klimakov/thai-qr-go"
+	"github.com/klimakov/thai-qr-go/internal"
 )
 
 // ProxyType constants for PromptPay AnyID.
